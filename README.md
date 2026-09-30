@@ -17,6 +17,9 @@ Worker Deployment: demo/order-service
 └──────────────────┘     └──────────────────┘
 ```
 
+**Presenting it?** [CHEATSHEET.md](CHEATSHEET.md) is the one-page runbook:
+commands, what should appear at each step, and how to recover when it wedges.
+
 From the browser you can start orders as **Pinned** or **Auto-Upgrade**, roll
 the deployment onto a new worker image, watch Auto-Upgrade orders migrate while
 Pinned ones stay put, and manually move a pinned order onto the new version.
