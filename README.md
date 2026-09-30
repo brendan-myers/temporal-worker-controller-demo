@@ -122,14 +122,20 @@ make rollout VERSION=v3 STRATEGY=AllAtOnce
 ```
 
 **What you'll see.** Auto-Upgrade orders migrate onto v3, fail to replay, and
-turn red in the UI. Their detail panel shows the cause:
+turn red in the UI. Click one and its detail panel names the cause —
+`category=WorkflowTaskFailed`,
+`cause=WorkflowTaskFailedCauseNonDeterministicError` — along with the version it
+is failing against:
 
-```
-category=WorkflowTaskFailed · cause=WorkflowTaskFailedCauseNonDeterministicError
-  — while moving to v3-c856
-```
+![The detail panel for a failing order, showing the non-determinism error, the
+order still filed under v2-fc69, and a Moving to row naming v3-c856 as the
+version it cannot replay against.](docs/images/failing-order.png)
 
-and the underlying failure, via *Open in Temporal UI*, is:
+*A failing order stays filed under `v2-fc69`, the last version that completed a
+workflow task for it. **Moving to** names `v3-c856` — the version it cannot
+replay against, and the real culprit.*
+
+The underlying failure, via *Open in Temporal UI*, is:
 
 ```
 [TMPRL1100] During replay, a matching Timer command was expected in history
