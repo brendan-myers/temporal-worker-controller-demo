@@ -7,13 +7,14 @@ The UI reproduces the diagram from the *How workflows are routed to versions*
 slide: a Worker Deployment frame containing one box per version, each holding a
 dot for every running workflow execution.
 
-![The demo mid-rollout: a Worker Deployment frame holding two version boxes.
-v1-fcc8 is draining with ten pinned orders still on it, while v2-fc69 is current
-with ten auto-upgraded orders that moved across.](docs/images/rollout.png)
+![A progressive rollout, animated. A second version box appears, the ramp climbs
+from 25% to 50%, auto-upgrade orders cross from v1 to v2 a few at a time, and v1
+is left draining with only its pinned orders.](docs/images/rollout.gif)
 
-*Mid-rollout: `v1-fcc8` is ⇩ Draining, still running the ten **pinned** orders that
-refuse to move. `v2-fc69` is ♡ Current, holding the ten **auto-upgrade** orders
-that followed it across. `Upgrade 10 pinned` moves the stragglers on demand.*
+*A Progressive rollout, start to finish. `v2-9796` appears and waits for pollers,
+the ramp steps **25% → 50%**, and **auto-upgrade** orders cross a few at a time.
+The ten **pinned** orders never move — v1 is left ⇩ Draining, holding them until
+someone decides otherwise.*
 
 **Presenting it?** [CHEATSHEET.md](CHEATSHEET.md) is the one-page runbook:
 commands, what should appear at each step, and how to recover when it wedges.
@@ -103,8 +104,12 @@ changed hands.
 **5. Move the pinned orders.** Click a pinned dot and *Pin to current*, or use
 *Upgrade N pinned* on the v1 box to move them all at once. This is a per-
 execution versioning override, which is why it works even though the controller
-owns the deployment's routing config. Once v1 is empty it drains and, a minute
-later, the controller deletes it and the box disappears.
+owns the deployment's routing config. Once v1 is empty it drains and, a few
+minutes later, the controller deletes it and the box disappears.
+
+![v1-fcc8 draining with ten pinned orders and an Upgrade 10 pinned button,
+beside v2-fc69 which is current and holds the ten auto-upgraded
+orders.](docs/images/rollout.png)
 
 **6. Do it again from a terminal**, with the UI on screen:
 
