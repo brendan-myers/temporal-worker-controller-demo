@@ -138,6 +138,14 @@ event position 11. However, the replayed code did not produce that.
 
 Pinned orders are untouched and keep running. That contrast is the whole point.
 
+![The same deployment after a breaking change. v1-fcc8 still runs its ten pinned
+orders normally in green, while every one of the ten auto-upgrade orders on
+v2-fc69 has turned red after failing to replay against v3.](docs/images/breaking-change.png)
+
+*All ten **auto-upgrade** orders went red the moment they were moved onto `v3`.
+The ten **pinned** orders on `v1-fcc8` beside them never moved, so they never
+broke. `Roll back to v2` is the way out.*
+
 Note the red dots stay in the **old** version's box. That is correct: an order is
 filed under the last version that *completed* a workflow task for it, and it
 cannot complete one on v3. The panel's *Moving to* row names the version it is
