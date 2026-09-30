@@ -1,0 +1,66 @@
+# The resource the demo is about.
+#
+# The Temporal-side Worker Deployment name is derived as <k8s namespace>/<name>
+# and is not configurable, so this is "demo/order-service" on the server.
+#
+# Any change to spec.template mints a new Build ID (<image tag>-<pod template
+# hash>), which is what makes the controller roll out a new version. The demo UI
+# patches spec.template...image, spec.rollout and spec.replicas here; it never
+# calls SetCurrentVersion itself, because the controller owns routing.
+apiVersion: temporal.io/v1alpha1
+kind: WorkerDeployment
+metadata:
+  name: order-service
+  namespace: demo
+  labels:
+    app: order-service
+spec:
+  replicas: 3
+
+  workerOptions:
+    connectionRef:
+      name: temporal
+    temporalNamespace: default
+
+  # Starts AllAtOnce so the first version becomes Current immediately. A
+  # Progressive strategy is skipped anyway while there is no Current version and
+  # no unversioned pollers, so there is nothing to see until v1 is established.
+  # Switch to Progressive from the UI (or scripts/rollout.sh) for the v2 rollout.
+  rollout:
+    strategy: AllAtOnce
+
+  # Tuned for a live demo: drained versions scale to zero immediately, so the old
+  # version's pods visibly go away while you talk. Production defaults are 1h/24h.
+  #
+  # deleteDelay trades a visual against a trap. Long enough and drained versions
+  # linger on screen; short enough and you can resurrect one: roll
+  # v1 -> v2 -> v1 -> v2 and that second v2 reuses the build ID of the version
+  # just deleted (same pod template, same hash), comes back missing its activity
+  # task queue, and the controller refuses to promote it — "missing active task
+  # queues from the current version" — wedging the rollout.
+  #
+  # 5m splits the difference: an old version box empties, then disappears a few
+  # minutes later while you are still talking, but stays available long enough to
+  # roll back to within a normal demo beat. If you do roll back to a version whose
+  # box has already gone, `make recover` resets it.
+  sunset:
+    scaledownDelay: 0s
+    deleteDelay: 5m
+
+  template:
+    spec:
+      containers:
+        - name: worker
+          image: order-worker:v1
+          # Images are built straight into minikube's daemon, never pushed.
+          imagePullPolicy: Never
+          env:
+            # The controller injects TEMPORAL_ADDRESS, TEMPORAL_NAMESPACE,
+            # TEMPORAL_DEPLOYMENT_NAME and TEMPORAL_WORKER_BUILD_ID. It does not
+            # inject the task queue, so we set it here.
+            - name: TEMPORAL_TASK_QUEUE
+              value: "order-service"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"

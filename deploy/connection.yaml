@@ -1,0 +1,15 @@
+# Where the worker pods find Temporal.
+#
+# Kind is `Connection`, not the deprecated `TemporalConnection` — the controller
+# rejects creation of the old kind from v1.7.0 onward.
+#
+# host.minikube.internal resolves to the host running `temporal server start-dev`.
+# That dev server must be started with `--ip 0.0.0.0` or it will not accept
+# connections from inside the cluster. No credentials: the dev server has none.
+apiVersion: temporal.io/v1alpha1
+kind: Connection
+metadata:
+  name: temporal
+  namespace: demo
+spec:
+  hostPort: "host.minikube.internal:7233"

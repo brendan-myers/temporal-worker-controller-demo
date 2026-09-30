@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Temporal Worker Controller Demo</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1>Temporal Worker Controller</h1>
+  <div class="topbar-meta">
+    <span id="conn" class="pill pill-off">connecting</span>
+    <a id="temporal-ui-link" class="pill pill-link" href="#" target="_blank" rel="noreferrer">Temporal UI</a>
+  </div>
+</header>
+
+<div id="errors" class="errors" hidden></div>
+
+<main class="layout">
+
+  <aside class="sidebar">
+
+    <section class="card">
+      <h2>Start orders</h2>
+      <label class="field">
+        <span>How many</span>
+        <input id="start-count" type="number" min="1" max="100" value="5">
+      </label>
+      <div class="field">
+        <span>Behaviour</span>
+        <div class="radios">
+          <label><input type="radio" name="behavior" value="Pinned" checked> <b class="pin">&#128204;</b> Pinned</label>
+          <label><input type="radio" name="behavior" value="AutoUpgrade"> Auto-Upgrade</label>
+        </div>
+      </div>
+      <button id="start-btn" class="btn btn-primary">Start</button>
+    </section>
+
+    <section class="card">
+      <h2>Roll out a version</h2>
+      <p class="hint">
+        This patches the <code>WorkerDeployment</code>. The controller decides
+        when traffic moves &mdash; the same as running <code>kubectl apply</code>.
+      </p>
+      <label class="field">
+        <span>Worker image</span>
+        <select id="rollout-image"></select>
+      </label>
+      <label class="field">
+        <span>Strategy</span>
+        <select id="rollout-strategy">
+          <option value="AllAtOnce">AllAtOnce</option>
+          <option value="Progressive">Progressive</option>
+          <option value="Manual">Manual</option>
+        </select>
+      </label>
+      <div id="steps-wrap" class="field" hidden>
+        <span>Ramp steps</span>
+        <div id="steps"></div>
+        <button id="add-step" type="button" class="btn btn-ghost btn-small">Add step</button>
+        <p class="hint hint-tight">
+          The CRD requires 1&ndash;99% and a pause of at least 30s per step.
+        </p>
+      </div>
+      <p id="rollback-warning" class="warning" hidden></p>
+      <button id="rollout-btn" class="btn btn-primary">Apply</button>
+    </section>
+
+    <section class="card">
+      <h2>Demo controls</h2>
+      <button id="reset-btn" class="btn btn-danger">Terminate all orders</button>
+    </section>
+
+  </aside>
+
+  <section class="main">
+
+    <div class="deployment">
+      <div class="deployment-head">
+        <span class="mono">Worker Deployment: <b id="deployment-name">&mdash;</b></span>
+        <span id="cr-summary" class="cr-summary mono"></span>
+      </div>
+
+      <div id="routing" class="routing" hidden>
+        <span class="routing-label">Ramping to <b id="routing-version" class="mono"></b></span>
+        <div class="routing-bar"><div id="routing-fill"></div></div>
+        <span id="routing-pct" class="routing-pct"></span>
+      </div>
+
+      <div id="versions" class="versions"></div>
+
+      <div id="unplaced" class="unplaced" hidden></div>
+
+      <div class="legend">
+        <span><b class="current">&#9825;</b> Current</span>
+        <span><b class="draining">&#8659;</b> Draining</span>
+        <span><b class="pin">&#128204;</b> Pinned</span>
+        <span><span class="dot dot-sample"></span> one running order</span>
+      </div>
+    </div>
+
+    <div class="lower">
+      <section class="card detail">
+        <div class="card-head">
+          <h2>Selected order</h2>
+          <button id="detail-close" class="btn-close" type="button" aria-label="Close and deselect this order" title="Deselect (Esc)" hidden>&times;</button>
+        </div>
+        <div id="detail-body" class="detail-body empty">Click a dot to inspect an order.</div>
+      </section>
+
+      <section class="card log">
+        <h2>Activity</h2>
+        <ul id="events"></ul>
+      </section>
+    </div>
+
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
