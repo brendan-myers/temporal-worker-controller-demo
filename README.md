@@ -7,15 +7,13 @@ The UI reproduces the diagram from the *How workflows are routed to versions*
 slide: a Worker Deployment frame containing one box per version, each holding a
 dot for every running workflow execution.
 
-```
-Worker Deployment: demo/order-service
-┌──────────────────┐     ┌──────────────────┐
-│ Version v1-a1b2c3│     │ Version v2-d4e5f6│
-│ 3/3 pods         │     │ 3/3 pods         │
-│ ●📌 ●📌 ● ●      │     │ ● ● ● ●          │
-│         ⇩ Draining│     │        ♡ Current │
-└──────────────────┘     └──────────────────┘
-```
+![The demo mid-rollout: a Worker Deployment frame holding two version boxes.
+v1-fcc8 is draining with ten pinned orders still on it, while v2-fc69 is current
+with ten auto-upgraded orders that moved across.](docs/images/rollout.png)
+
+*Mid-rollout: `v1-fcc8` is ⇩ Draining, still running the ten **pinned** orders that
+refuse to move. `v2-fc69` is ♡ Current, holding the ten **auto-upgrade** orders
+that followed it across. `Upgrade 10 pinned` moves the stragglers on demand.*
 
 **Presenting it?** [CHEATSHEET.md](CHEATSHEET.md) is the one-page runbook:
 commands, what should appear at each step, and how to recover when it wedges.
